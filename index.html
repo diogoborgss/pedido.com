@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quer namorar comigo?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .emoji-container {
+            font-size: 80px;
+            margin-bottom: 15px;
+            line-height: 1;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        h1 {
+            color: #d63384;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            min-height: 70px;
+            position: relative;
+        }
+
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        #btnSim {
+            background-color: #28a745;
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            z-index: 2;
+        }
+
+        #btnSim:hover {
+            transform: scale(1.1);
+        }
+
+        #btnNao {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            transition: left 0.2s ease, top 0.2s ease;
+            z-index: 100;
+        }
+
+        /* Mensagem de sucesso */
+        .success-message {
+            display: none;
+            color: #d63384;
+            font-size: 22px;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Efeito de corações caindo */
+        .heart {
+            position: fixed;
+            top: -10vh;
+            font-size: 24px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="container">
+        <!-- Container do Emoji no lugar da imagem/GIF -->
+        <div class="emoji-container" id="emojiDisplay">🥺</div>
+        
+        <h1 id="titulo">Quer namorar comigo? ❤️</h1>
+        <div class="buttons" id="areaBotoes">
+            <button id="btnSim" onclick="aceitarPedido()">Sim</button>
+            <button id="btnNao" onmouseover="fugir()" ontouchstart="fugirMobile(event)">Não</button>
+        </div>
+        <div class="success-message" id="mensagemSucesso">
+            Eba! Sabia que você diria sim! 🥰🎉❤️
+        </div>
+    </div>
+
+    <script>
+        // Lista de emojis progredindo de triste para extremamente triste/desesperado
+        const emojisTristes = [
+            "🥺", // Inicial
+            "😢", // Um pouco triste
+            "😭", // Chorando
+            "💔", // Coração partido
+            "😿", // Gatinho triste
+            "🥀", // Flor murcha
+            "🫠", // Derretendo de tristeza
+            "☠️"  // Dramático extremo
+        ];
+
+        const frasesNao = [
+            "Não",
+            "Tem certeza?",
+            "Certeza absoluta?",
+            "Pensa bem...",
+            "Olha o outro botão!",
+            "Apertou errado né?",
+            "Tenta o verde!",
+            "Nem vem! 😂"
+        ];
+
+        let contadorFuga = 0;
+        let escalaSim = 1;
+
+        function fugir() {
+            const btnNao = document.getElementById('btnNao');
+            const btnSim = document.getElementById('btnSim');
+            const emojiDisplay = document.getElementById('emojiDisplay');
+            
+            contadorFuga++;
+
+            // Troca o emoji para um mais triste conforme as tentativas
+            const indiceEmoji = Math.min(contadorFuga, emojisTristes.length - 1);
+            emojiDisplay.innerText = emojisTristes[indiceEmoji];
+
+            // Troca a frase do botão Não
+            const indiceFrase = contadorFuga % frasesNao.length;
+            btnNao.innerText = frasesNao[indiceFrase];
+
+            // Faz o botão SIM crescer a cada tentativa de fuga
+            escalaSim += 0.1;
+            btnSim.style.transform = `scale(${escalaSim})`;
+
+            // Garante posição 'fixed' para rodar livremente pela tela
+            btnNao.style.position = 'fixed';
+
+            const larguraJanela = window.innerWidth;
+            const alturaJanela = window.innerHeight;
+
+            const maxX = larguraJanela - btnNao.offsetWidth - 30;
+            const maxY = alturaJanela - btnNao.offsetHeight - 30;
+
+            const randomX = Math.max(20, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(20, Math.floor(Math.random() * maxY));
+
+            btnNao.style.left = randomX + 'px';
+            btnNao.style.top = randomY + 'px';
+        }
+
+        function fugirMobile(event) {
+            event.preventDefault(); // Impede o clique real no mobile
+            fugir();
+        }
+
+        function aceitarPedido() {
+            document.getElementById('areaBotoes').style.display = 'none';
+            document.getElementById('titulo').style.display = 'none';
+            document.getElementById('mensagemSucesso').style.display = 'block';
+            
+            // Troca para Emoji apaixonado e feliz
+            document.getElementById('emojiDisplay').innerText = "🥰";
+
+            // Inicia chuva de corações
+            setInterval(criarCoracao, 200);
+        }
+
+        function criarCoracao() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = ['❤️', '💖', '💕', '🥰', '✨'][Math.floor(Math.random() * 5)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+    </script>
+
+</body>
+</html>
